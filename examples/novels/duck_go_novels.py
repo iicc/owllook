@@ -2,12 +2,12 @@
 """
  Created by howie.hu at 23/11/2017.
 """
-import asyncio
 import aiohttp
+import asyncio
 import async_timeout
 
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 from owllook.fetcher.function import get_random_user_agent
 from owllook.config import CONFIG, LOGGER, BLACK_DOMAIN, RULES, LATEST_RULES
@@ -17,10 +17,11 @@ async def fetch(client, url, novels_name):
     with async_timeout.timeout(20):
         try:
             headers = {
-                'user-agent': get_random_user_agent(),
+                'user-agent': await get_random_user_agent(),
                 'referer': "https://duckduckgo.com/"
             }
             params = {'q': novels_name}
+            # , proxy="http://127.0.0.1:8118"
             async with client.get(url, params=params, headers=headers) as response:
                 assert response.status == 200
                 LOGGER.info('Task url: {}'.format(response.url))
@@ -40,6 +41,7 @@ async def data_extraction_for_web_duck(client, html):
             try:
                 title = html.select('h2 a')[0].get_text()
                 url = html.select('h2 a')[0].get('href', None)
+                url = parse_qs(url).get('uddg', ['#'])[0]
                 netloc = urlparse(url).netloc
                 url = url.replace('index.html', '').replace('Index.html', '')
                 if not url or 'baidu' in url or 'baike.so.com' in url or netloc in BLACK_DOMAIN or '.html' in url:

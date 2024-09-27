@@ -1,20 +1,15 @@
 #!/usr/bin/env python
 import aiocache
+import os
+import sys
+
 from sanic import Sanic
 from sanic.response import html, redirect
 from sanic_session import RedisSessionInterface
 
-import sys
-import os
-
-# os.environ['MODE'] = 'PRO'
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from owllook.views import novels_bp
-from owllook.views import operate_bp
-from owllook.views import except_bp
-from owllook.views import admin_bp
-from owllook.views import api_bp
-from owllook.views import md_bp
+
+from owllook.views import admin_bp, api_bp, except_bp, md_bp, novels_bp, operate_bp
 from owllook.database.redis import RedisSession
 from owllook.config import LOGGER, CONFIG
 
@@ -24,9 +19,7 @@ app.blueprint(novels_bp)
 app.blueprint(operate_bp)
 app.blueprint(except_bp)
 app.blueprint(admin_bp)
-
-
-# app.blueprint(api_bp)
+app.blueprint(api_bp)
 
 
 @app.listener('before_server_start')
@@ -58,6 +51,10 @@ async def add_session_to_request(request):
     host = request.headers.get('host', None)
     user_agent = request.headers.get('user-agent', None)
     if user_agent:
+        user_ip = request.headers.get('X-Forwarded-For')
+        LOGGER.info('user ip is: {}'.format(user_ip))
+        if user_ip in CONFIG.FORBIDDEN:
+            return html("<h3>网站正在维护...</h3>")
         if CONFIG.VAL_HOST == 'true':
             if not host or host not in CONFIG.HOST:
                 return redirect('http://www.owllook.net')
@@ -82,9 +79,10 @@ async def save_session(request, response):
     elif request.path == '/register':
         try:
             response.cookies['reg_index'] = str(request['session']['index'][0])
-        except KeyError:
-            pass
+        except KeyError as e:
+            LOGGER.error(e)
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", workers=1, port=8001, debug=CONFIG.DEBUG)
+    workers = 1 if os.name == 'nt' else 2
+    app.run(host="0.0.0.0", workers=workers, port=8001, debug=CONFIG.DEBUG)

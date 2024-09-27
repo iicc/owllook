@@ -2,17 +2,22 @@
 *.pyc
 *.ini
 *.log
-gunicorn.py
 pro_config.py
 tags
 .DS_Store
 Caddyfile
 # dir
 __pycache__/
+.cache
+.pytest_cache
 .vscode/
+.idea
 build/
 dist/
 *.egg-info/
 mdui.css
 mdui.js
 owllook.env
+test_extractor.py
+CaddyfileNode01
+CaddyfileNode02

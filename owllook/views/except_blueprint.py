@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+from jinja2 import Environment, PackageLoader, select_autoescape
 from sanic import Blueprint
 from sanic.exceptions import NotFound, ServerError
 from sanic.response import html, json
-from jinja2 import Environment, PackageLoader, select_autoescape
 
 from owllook.config import CONFIG
 
@@ -11,7 +11,7 @@ except_bp.static('/static/except', CONFIG.BASE_DIR + '/static/except')
 
 # jinjia2 config
 env = Environment(
-    loader=PackageLoader('views.except_blueprint', '../templates/except'),
+    loader=PackageLoader('owllook.views.except_blueprint', '../templates/except'),
     autoescape=select_autoescape(['html', 'xml', 'tpl']))
 
 
@@ -28,7 +28,7 @@ def ignore_404(request, exception):
 
 
 @except_bp.exception(ServerError)
-async def test(request, exception):
+async def server_error(request, exception):
     return json(
         {
             "exception": "{}".format(exception),

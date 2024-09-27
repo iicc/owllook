@@ -154,18 +154,15 @@ $(document).ready(function () {
     })
 });
 
-// (function (i, s, o, g, r, a, m) {
-//     i['GoogleAnalyticsObject'] = r;
-//     i[r] = i[r] || function () {
-//             (i[r].q = i[r].q || []).push(arguments)
-//         }, i[r].l = 1 * new Date();
-//     a = s.createElement(o),
-//         m = s.getElementsByTagName(o)[0];
-//     a.async = 1;
-//     a.src = g;
-//     m.parentNode.insertBefore(a, m)
-// })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-//
-// ga('create', 'UA-93675831-1', 'auto');
-// ga('send', 'pageview');
+$('.we-button').popover({
+    trigger: 'hover',
+    html: true,
+    content: "<img width='120px' height='120px' src='static/novels/img/lcxs.jpg'><p style='text-align: center'><span>关注后回复进群</span></p>"
+});
+
+$('.lcxs-button').popover({
+    trigger: 'hover',
+    html: true,
+    content: "<img width='120px' height='120px' src='static/novels/img/lcxs.jpg'><p style='text-align: center'><span>微信关注粮草小说</span></p>"
+});
 

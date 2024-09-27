@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-import asyncio
 import aiohttp
+import arrow
+import asyncio
 import async_timeout
 import re
-import arrow
 
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -15,7 +15,7 @@ from owllook.config import CONFIG, LOGGER, BLACK_DOMAIN, RULES, LATEST_RULES
 async def fetch(client, url, name, is_web):
     with async_timeout.timeout(15):
         try:
-            headers = {'user-agent': get_random_user_agent()}
+            headers = {'user-agent': await get_random_user_agent()}
             if is_web:
                 params = {'wd': name, 'ie': 'utf-8', 'rn': CONFIG.BAIDU_RN, 'vf_bl': 1}
             else:
@@ -34,9 +34,9 @@ async def fetch(client, url, name, is_web):
 
 
 async def get_real_url(client, url):
-    with async_timeout.timeout(10):
+    with async_timeout.timeout(5):
         try:
-            headers = {'user-agent': get_random_user_agent()}
+            headers = {'user-agent': await get_random_user_agent()}
             async with client.head(url, headers=headers, allow_redirects=True) as response:
                 assert response.status == 200
                 LOGGER.info('Parse url: {}'.format(response.url))
@@ -157,4 +157,17 @@ async def baidu_search(name, is_web=1):
                 result = soup.find_all(class_='result c-result c-clk-recommend')
                 extra_tasks = [data_extraction_for_phone(i) for i in result]
                 tasks = [asyncio.ensure_future(i) for i in extra_tasks]
-            return await asyncio.gather(*tasks)
+            # return await asyncio.gather(*tasks)
+            done_list, pending_list = await asyncio.wait(tasks)
+            res = []
+            for task in done_list:
+                res.append(task.result())
+            return res
+
+
+if __name__ == '__main__':
+    import time
+
+    start = time.time()
+    print(asyncio.get_event_loop().run_until_complete(baidu_search('雪中悍刀行')))
+    print(time.time() - start)

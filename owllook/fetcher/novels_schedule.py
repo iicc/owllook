@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+"""
+ Created by howie.hu at 2018/5/28.
+"""
+
 import asyncio
-import uvloop
-import schedule
-import time
-import sys
 import os
+import schedule
+import sys
+import time
+import uvloop
 
 os.environ['MODE'] = 'PRO'
 sys.path.append('../../')
@@ -22,7 +26,7 @@ def update_all_books_schedule():
 
 
 # python novels_schedule.py
-schedule.every(90).minutes.do(update_all_books_schedule)
+schedule.every(180).minutes.do(update_all_books_schedule)
 
 while True:
     schedule.run_pending()

@@ -2,8 +2,8 @@
 """
  Created by howie.hu at 21/11/2017.
 """
-import asyncio
 import aiohttp
+import asyncio
 import async_timeout
 
 from bs4 import BeautifulSoup
@@ -17,9 +17,10 @@ async def fetch(client, url, novels_name):
     with async_timeout.timeout(20):
         try:
             headers = {
-                'user-agent': get_random_user_agent(),
+                'user-agent': await get_random_user_agent(),
                 'referer': "https://www.bing.com/"
             }
+            print(headers)
             params = {'q': novels_name, 'ensearch': 0}
             async with client.get(url, params=params, headers=headers) as response:
                 assert response.status == 200

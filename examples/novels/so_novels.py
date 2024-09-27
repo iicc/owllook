@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-import asyncio
 import aiohttp
+import asyncio
 import async_timeout
 
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 from owllook.fetcher.function import get_random_user_agent
 from owllook.config import CONFIG, LOGGER, BLACK_DOMAIN, RULES, LATEST_RULES
@@ -14,7 +14,7 @@ async def fetch(client, url, novels_name):
     with async_timeout.timeout(20):
         try:
             headers = {
-                'User-Agent': get_random_user_agent(),
+                'User-Agent': await get_random_user_agent(),
                 'Referer': "http://www.so.com/haosou.html?src=home"
             }
             params = {'ie': 'utf-8', 'src': 'noscript_home', 'shb': 1, 'q': novels_name, }

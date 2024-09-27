@@ -1,10 +1,14 @@
 #!/usr/bin/env python
+"""
+ Created by howie.hu at 2018/5/28.
+"""
+
 import re
 
-from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
-from operator import itemgetter
 from collections import OrderedDict
+from operator import itemgetter
+from urllib.parse import urljoin, urlparse
 
 from owllook.config import LOGGER
 
@@ -35,7 +39,7 @@ def extract_chapters(chapters_url, html):
     return chapters_sorted
 
 
-def extract_pre_next_chapter(chapter_url, html):
+def extract_pre_next_chapter(url, chapter_url, html):
     """
     获取单章节上一页下一页
     :param chapter_url: 
@@ -45,10 +49,10 @@ def extract_pre_next_chapter(chapter_url, html):
     next_chapter = OrderedDict()
     try:
         # 参考https://greasyfork.org/zh-CN/scripts/292-my-novel-reader
-        next_reg = r'(<a\s+.*?>.*[上前下后][一]?[页张个篇章节步].*?</a>)'
-        judge_reg = r'[上前下后][一]?[页张个篇章节步]'
+        next_reg = r'(<a\s+.*?>.*[第上前下后][一]?[0-9]{0,6}?[页张个篇章节步].*?</a>)'
+        judge_reg = r'[第上前下后][一]?[0-9]{0,6}?[页张个篇章节步]'
         # 这里同样需要利用bs再次解析
-        next_res = re.findall(next_reg, html.replace('<<','').replace('>>',''), re.I)
+        next_res = re.findall(next_reg, html.replace('<<', '').replace('>>', ''), re.I)
         str_next_res = '\n'.join(next_res)
         next_res_soup = BeautifulSoup(str_next_res, 'html5lib')
         for link in next_res_soup.find_all('a'):
@@ -59,6 +63,9 @@ def extract_pre_next_chapter(chapter_url, html):
                 # is_ok = is_chapter(text)
                 if is_next:
                     url = urljoin(chapter_url, link.get('href')) or ''
+                    regex = re.compile("^http://|^https://")
+                    if regex.sub('', chapter_url) == regex.sub('', url):
+                        url = False
                     next_chapter[text[:5]] = url
 
         # nextDic = [{v[0]: v[1]} for v in sorted(next_chapter.items(), key=lambda d: d[1])]
@@ -69,10 +76,10 @@ def extract_pre_next_chapter(chapter_url, html):
 
 
 def novels_list(text):
-    rm_list = ['最后一个使徒']
+    rm_list = ['后一个', '天上掉下个']
     for i in rm_list:
         if i in text:
             return False
         else:
-            pass
+            continue
     return True
